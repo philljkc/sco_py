@@ -207,7 +207,7 @@ class QuadExpr(Expr):
 
     def grad(self, x):
         assert x.shape == self.x_shape
-        return 0.5 * (self.Q.dot(x) + self.Q.T.dot(x)) + self.A.T
+        return (0.5 * (self.Q.dot(x) + self.Q.T.dot(x)) + self.A.T).T
 
     def hess(self, x):
         return self.Q.copy()

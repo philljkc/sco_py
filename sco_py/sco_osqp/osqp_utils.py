@@ -4,7 +4,7 @@ import numpy as np
 import osqp
 import scipy
 
-from sco_py.sco_osqp.variable import Variable
+from opentamp.sco_py.sco_py.sco_osqp.variable import Variable
 
 
 DEFAULT_MAX_ITER = int(1e05)

@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 
-import sco_py.sco_osqp.osqp_utils as osqp_utils
+import opentamp.sco_py.sco_py.sco_osqp.osqp_utils as osqp_utils
 
 
 class Solver(object):
@@ -26,6 +26,7 @@ class Solver(object):
         self.merit_coeff_increase_ratio = 1e1
         self.initial_trust_region_size = 1
         self.initial_penalty_coeff = 1e3
+        self.timeout = 60
 
     def solve(self, 
               prob, 
@@ -99,6 +100,10 @@ class Solver(object):
                 if verbose:
                     print("sqp time: ", end - start)
                 return success
+
+            if time.time() - start >= self.timeout:
+                print('WARN -- Penalty SQP timed out!')
+                return success
         end = time.time()
         if verbose:
             print("sqp time: ", end - start)
@@ -123,7 +128,9 @@ class Solver(object):
         """
         sqp_iter = 1
 
-        while True:
+        start_time = time.time()
+
+        while time.time() - start_time < self.timeout:
             if verbose:
                 print(("  sqp_iter: {0}".format(sqp_iter)))
 
@@ -133,7 +140,7 @@ class Solver(object):
             merit_vec = prob.get_value(penalty_coeff, True)
             prob.save()
 
-            while True:
+            while time.time() - start_time < self.timeout:
                 if verbose:
                     print(("    trust region size: {0}".format(trust_region_size)))
                 prob.add_trust_region(trust_region_size)
@@ -251,6 +258,8 @@ class Solver(object):
                     return True
 
             sqp_iter = sqp_iter + 1
+
+        return False
 
     def _bad_model(self, approx_merit_improve):
         """
